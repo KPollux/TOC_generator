@@ -1,7 +1,22 @@
 CONTENT_FILE = "content.txt"
 RESULT_FILE = "result.txt"
-REPLACE_STR = "~!@#$%^&*()_+`-={[}]|\\:;"'<,>?/ '
-ERASE_STR = "."
+REPLACE_STR = "~!@#$%^&*()+`-={[}]|\\:;"'<,>? '
+ERASE_STR = "./，"
+
+
+# 找到最右边的一个字符，没有则返回-1
+def findr(in_str, char):
+    index = -1
+    temp_index = 0
+    while True:
+        temp_index = in_str[temp_index:].find(char)
+        if temp_index == -1:
+            break
+        else:
+            index = temp_index
+            temp_index += 1
+
+    return index
 
 
 def count_sharp(in_str):
@@ -33,11 +48,30 @@ def deal_str(in_str):
     _ += "- ["
     head_str = _
 
-    # TODO() 头部处理完毕，处理文字部分
+    # TODO() 文字部分删除超链接
     body_str = in_str[last_index + 2:-1]
-    tail_str = "]()\n"
 
-    out_str = f'{head_str}{body_str}{tail_str}'
+    b_ri = findr(body_str, ']')
+    if b_ri > 0:
+        body_str = body_str[0:b_ri]
+    # print(b_ri)
+    body_str = body_str.replace('[', '')
+    # print(body_str)
+
+    # 后半部分转换完毕
+    body_str2 = "](#"
+    for _ in body_str:
+        if REPLACE_STR.find(_) >= 0:
+            _ = '-'
+        elif ERASE_STR.find(_) >= 0:
+            _ = ''
+        elif _.isalpha():
+            _ = _.lower()
+        body_str2 += _
+
+    tail_str = ")\n"
+
+    out_str = f'{head_str}{body_str}{body_str2}{tail_str}'
 
     return out_str
 
@@ -48,7 +82,7 @@ def main():
     out_str = []
 
     # 读入文件
-    with open(CONTENT_FILE, 'r') as file_to_read:
+    with open(CONTENT_FILE, 'r', encoding='UTF-8', errors='ignore') as file_to_read:
         while True:
             lines = file_to_read.readline()  # 整行读取数据
             in_str.append(lines)
@@ -64,12 +98,12 @@ def main():
     # 按句处理，并加入到输出字符串里准备输出
     for _ in temp_str:
         out_str.append(deal_str(_))
-    print(out_str)
+    # print(out_str)
 
     # 输出到文件
-    # with open(RESULT_FILE, 'w') as file_to_write:
-    #     for _ in out_str:
-    #         file_to_write.write(_)
+    with open(RESULT_FILE, 'w') as file_to_write:
+        for _ in out_str:
+            file_to_write.write(_)
 
 
 if __name__ == "__main__":
