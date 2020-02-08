@@ -48,7 +48,7 @@ def deal_str(in_str):
     _ += "- ["
     head_str = _
 
-    # TODO() 文字部分删除超链接
+    # 文字部分删除超链接
     body_str = in_str[last_index + 2:-1]
 
     b_ri = findr(body_str, ']')
